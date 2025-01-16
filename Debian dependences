@@ -42,7 +42,7 @@ java -version
 # Setting up Jenkins repository for Ubuntu 20.04 LTS (Focal Fossa) instead of Jammy
 echo "Setting up Jenkins repository..."
 sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
-  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+  https://pkg.jenkins.io/debian-stable/jenkins.io.key
 echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
   https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
@@ -84,4 +84,5 @@ sudo systemctl status jenkins
 echo "Verifying Java and Jenkins installations..."
 java -version
 echo "Jenkins is running on port 8080"
+
 
