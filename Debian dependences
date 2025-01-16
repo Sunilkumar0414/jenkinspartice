@@ -1,88 +1,54 @@
 #!/bin/bash
 
-# Update and install dependencies
-echo "Updating package list..."
+# Function to echo steps
+function echo_step {
+    echo "=================================================="
+    echo "$1"
+    echo "=================================================="
+}
+
+# Step 1: Cloning the repository
+echo_step "Cloning the repository..."
+git clone https://github.com/Sunilkumar0414/jenkinspartice.git
+cd jenkinspartice
+
+# Step 2: Adding Jenkins GPG key
+echo_step "Adding Jenkins GPG key..."
+curl -fsSL https://pkg.jenkins.io/debian/jenkins.io.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+# Step 3: Updating system packages
+echo_step "Updating system packages..."
 sudo apt-get update -y
 
-# Install essential dependencies
-echo "Installing required dependencies..."
-sudo apt-get install -y wget curl gnupg software-properties-common lsb-release apt-transport-https ca-certificates
+# Step 4: Checking Java version before installation
+echo_step "Checking Java version before installation..."
+java -version || echo "Java not installed"
 
-# Run dpkg --configure -a to fix the interrupted installation
-echo "Running 'sudo dpkg --configure -a' to fix interrupted dpkg process..."
-sudo dpkg --configure -a
+# Step 5: Downloading and installing Java 17
+echo_step "Downloading and installing Java 17..."
+sudo apt-get install -y openjdk-17-jdk
 
-# Check and fix broken dependencies
-echo "Running 'sudo apt-get install -f' to fix broken dependencies..."
-sudo apt-get install -f -y
-
-# Update package lists to ensure everything is up-to-date
-echo "Running 'sudo apt-get update -y' to update package lists..."
-sudo apt-get update -y
-
-# Optional: Upgrade packages if required
-# echo "Upgrading packages..."
-# sudo apt-get upgrade -y
-
-# Check and confirm if dpkg is in a clean state
-echo "Checking if dpkg is in a clean state..."
-dpkg --audit || echo "No broken packages detected."
-
-# Print the status of dpkg
-echo "dpkg status after fix:"
-dpkg --list
-
-# Install Java 11
-echo "Installing Java 11..."
-sudo apt-get install -y openjdk-11-jdk
-echo "Java Installation Complete."
+# Step 6: Checking Java version after installation
+echo_step "Checking Java version after installation..."
 java -version
 
-# Install Jenkins (Add Jenkins repository and install)
-# Setting up Jenkins repository for Ubuntu 20.04 LTS (Focal Fossa) instead of Jammy
-echo "Setting up Jenkins repository..."
- sudo wget -O /usr/share/keyrings/jenkins-keyring.asc 
-    https://pkg.jenkins.io/debian/jenkins.io-2023.key
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" 
-    https://pkg.jenkins.io/debian binary/ | sudo tee \
-    /etc/apt/sources.list.d/jenkins.list > /dev/null
-
-# Fix the Jenkins repository by using a supported version (focal)
-echo "Fixing Jenkins repository URL..."
-sudo sed -i 's|http://pkg.jenkins.io/debian jammy|http://pkg.jenkins.io/debian focal|g' /etc/apt/sources.list.d/jenkins.list
-
-# Now, run apt-get update to refresh the repositories
-echo "Running apt-get update for system support..."
+# Step 7: Adding Jenkins repository and installing Jenkins
+echo_step "Adding Jenkins repository and installing Jenkins..."
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 sudo apt-get update -y
+sudo apt-get install -y fontconfig jenkins
 
-# Update package list again after adding Jenkins repo
-echo "Updating package list again..."
-sudo apt-get update -y
+# Step 8: Verifying Jenkins installation
+echo_step "Verifying Jenkins installation..."
+sudo systemctl status jenkins
 
-# Install Jenkins
-echo "Installing Jenkins..."
-sudo apt-get install -y jenkins
-echo "Jenkins Installation Complete."
-
-# Start Jenkins
-echo "Starting Jenkins..."
+# Step 9: Starting Jenkins service
+echo_step "Starting Jenkins service..."
 sudo systemctl start jenkins
 
-# Check Jenkins status
-echo "Checking Jenkins status..."
-sudo systemctl status jenkins
+# Step 10: Access Jenkins dashboard
+echo_step "Jenkins is installed and running."
+echo "Access the Jenkins dashboard at: http://13.233.237.96:8080"
 
-# Enable Jenkins to start on boot
-echo "Enabling Jenkins to start on boot..."
-sudo systemctl enable jenkins
-
-# Final Jenkins status check
-echo "Final Jenkins status check..."
-sudo systemctl status jenkins
-
-# Verify the installation of Java and Jenkins
-echo "Verifying Java and Jenkins installations..."
-java -version
-echo "Jenkins is running on port 8080"
 
 
