@@ -41,9 +41,9 @@ java -version
 # Install Jenkins (Add Jenkins repository and install)
 # Setting up Jenkins repository for Ubuntu 20.04 LTS (Focal Fossa) instead of Jammy
 echo "Setting up Jenkins repository..."
- sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+ sudo wget -O /usr/share/keyrings/jenkins-keyring.asc 
     https://pkg.jenkins.io/debian/jenkins.io-2023.key
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" 
     https://pkg.jenkins.io/debian binary/ | sudo tee \
     /etc/apt/sources.list.d/jenkins.list > /dev/null
 
