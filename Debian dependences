@@ -47,6 +47,14 @@ echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
   https://pkg.jenkins.io/debian-stable binary/" | sudo tee \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
 
+# Fix the Jenkins repository by using a supported version (focal)
+echo "Fixing Jenkins repository URL..."
+sudo sed -i 's|http://pkg.jenkins.io/debian jammy|http://pkg.jenkins.io/debian focal|g' /etc/apt/sources.list.d/jenkins.list
+
+# Now, run apt-get update to refresh the repositories
+echo "Running apt-get update for system support..."
+sudo apt-get update -y
+
 # Update package list again after adding Jenkins repo
 echo "Updating package list again..."
 sudo apt-get update -y
