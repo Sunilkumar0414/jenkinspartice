@@ -8,6 +8,22 @@ sudo apt-get update -y
 echo "Installing required dependencies..."
 sudo apt-get install -y wget curl gnupg software-properties-common lsb-release apt-transport-https ca-certificates
 
+# Run dpkg --configure -a to fix the interrupted installation
+echo "Running 'sudo dpkg --configure -a' to fix interrupted dpkg process..."
+sudo dpkg --configure -a
+
+# Check if there are any broken dependencies
+echo "Running 'sudo apt-get install -f' to fix broken dependencies..."
+sudo apt-get install -f -y
+
+# Update the package list to ensure everything is up-to-date
+echo "Running 'sudo apt-get update -y' to update package lists..."
+sudo apt-get update -y
+
+# Reboot the system if needed
+echo "Rebooting the system to apply changes..."
+sudo reboot
+
 # Install Java 11
 echo "Installing Java 11..."
 sudo apt-get install -y openjdk-11-jdk
