@@ -12,17 +12,25 @@ sudo apt-get install -y wget curl gnupg software-properties-common lsb-release a
 echo "Running 'sudo dpkg --configure -a' to fix interrupted dpkg process..."
 sudo dpkg --configure -a
 
-# Check if there are any broken dependencies
+# Check and fix broken dependencies
 echo "Running 'sudo apt-get install -f' to fix broken dependencies..."
 sudo apt-get install -f -y
 
-# Update the package list to ensure everything is up-to-date
+# Update package lists to ensure everything is up-to-date
 echo "Running 'sudo apt-get update -y' to update package lists..."
 sudo apt-get update -y
 
-# Reboot the system if needed
-echo "Rebooting the system to apply changes..."
-sudo reboot
+# Optional: Upgrade packages if required
+# echo "Upgrading packages..."
+# sudo apt-get upgrade -y
+
+# Check and confirm if dpkg is in a clean state
+echo "Checking if dpkg is in a clean state..."
+dpkg --audit || echo "No broken packages detected."
+
+# Print the status of dpkg
+echo "dpkg status after fix:"
+dpkg --list
 
 # Install Java 11
 echo "Installing Java 11..."
@@ -56,7 +64,7 @@ sudo systemctl status jenkins
 echo "Enabling Jenkins to start on boot..."
 sudo systemctl enable jenkins
 
-# Check the status of Jenkins after enabling
+# Final Jenkins status check
 echo "Final Jenkins status check..."
 sudo systemctl status jenkins
 
@@ -64,3 +72,4 @@ sudo systemctl status jenkins
 echo "Verifying Java and Jenkins installations..."
 java -version
 echo "Jenkins is running on port 8080"
+
