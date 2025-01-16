@@ -1,100 +1,50 @@
-pipeline {
-    agent any
-    environment {
-        REPO_URL = 'https://github.com/your-repository.git' // Replace with your repository URL
-        DEPENDENCIES = 'git build-essential dpkg-dev debhelper curl wget openjdk-17-jdk' // Add more dependencies as needed
-    }
-    stages {
-        stage('Install System Dependencies') {
-            steps {
-                script {
-                    echo "Installing required system dependencies..."
-                    sh '''
-                    sudo dpkg --configure -a
-                    sudo apt-get update
-                    sudo apt-get install -y ${DEPENDENCIES}
-                    '''
-                }
-            }
-        }
-        stage('Clone Repository') {
-            steps {
-                script {
-                    echo "Cloning the GitHub repository..."
-                    sh '''
-                    git clone ${REPO_URL}
-                    cd $(basename ${REPO_URL} .git)
-                    '''
-                }
-            }
-        }
-        stage('Install Project Dependencies') {
-            steps {
-                script {
-                    echo "Installing project-specific dependencies..."
-                    sh '''
-                    cd $(basename ${REPO_URL} .git)
-                    if [ -f "package.json" ]; then
-                        sudo apt-get install -y npm
-                        npm install
-                    fi
-                    if [ -f "requirements.txt" ]; then
-                        sudo apt-get install -y python3-pip
-                        pip3 install -r requirements.txt
-                    fi
-                    '''
-                }
-            }
-        }
-        stage('Build Project') {
-            steps {
-                script {
-                    echo "Building the project..."
-                    sh '''
-                    cd $(basename ${REPO_URL} .git)
-                    if [ -f "Makefile" ]; then
-                        make
-                    elif [ -f "build.gradle" ]; then
-                        ./gradlew build
-                    elif [ -f "pom.xml" ]; then
-                        mvn package
-                    else
-                        echo "No build file found. Skipping build step."
-                    fi
-                    '''
-                }
-            }
-        }
-        stage('Run Tests') {
-            steps {
-                script {
-                    echo "Running tests..."
-                    sh '''
-                    cd $(basename ${REPO_URL} .git)
-                    if [ -f "Makefile" ]; then
-                        make test
-                    elif [ -f "build.gradle" ]; then
-                        ./gradlew test
-                    elif [ -f "pom.xml" ]; then
-                        mvn test
-                    else
-                        echo "No test configuration found. Skipping test step."
-                    fi
-                    '''
-                }
-            }
-        }
-    }
-    post {
-        success {
-            echo "Pipeline executed successfully."
-        }
-        failure {
-            echo "Pipeline failed. Check the logs for details."
-        }
-        always {
-            echo "Cleaning up workspace..."
-            cleanWs()
-        }
-    }
-}
+#!/bin/bash
+
+# Update and install dependencies
+echo "Updating package list..."
+sudo apt-get update -y
+
+# Install essential dependencies
+echo "Installing required dependencies..."
+sudo apt-get install -y wget curl gnupg software-properties-common lsb-release apt-transport-https ca-certificates
+
+# Install Java 11
+echo "Installing Java 11..."
+sudo apt-get install -y openjdk-11-jdk
+echo "Java Installation Complete."
+java -version
+
+# Install Jenkins (Add Jenkins repository and install)
+echo "Setting up Jenkins repository..."
+wget -q -O - https://pkg.jenkins.io/jenkins.io.key | sudo tee /etc/apt/trusted.gpg.d/jenkins.asc
+echo "deb http://pkg.jenkins.io/debian/ $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/jenkins.list
+
+# Update package list again after adding Jenkins repo
+echo "Updating package list again..."
+sudo apt-get update -y
+
+# Install Jenkins
+echo "Installing Jenkins..."
+sudo apt-get install -y jenkins
+echo "Jenkins Installation Complete."
+
+# Start Jenkins
+echo "Starting Jenkins..."
+sudo systemctl start jenkins
+
+# Check Jenkins status
+echo "Checking Jenkins status..."
+sudo systemctl status jenkins
+
+# Enable Jenkins to start on boot
+echo "Enabling Jenkins to start on boot..."
+sudo systemctl enable jenkins
+
+# Check the status of Jenkins after enabling
+echo "Final Jenkins status check..."
+sudo systemctl status jenkins
+
+# Verify the installation of Java and Jenkins
+echo "Verifying Java and Jenkins installations..."
+java -version
+echo "Jenkins is running on port 8080"
