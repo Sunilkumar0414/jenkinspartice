@@ -1,0 +1,100 @@
+pipeline {
+    agent any
+    environment {
+        REPO_URL = 'https://github.com/your-repository.git' // Replace with your repository URL
+        DEPENDENCIES = 'git build-essential dpkg-dev debhelper curl wget openjdk-17-jdk' // Add more dependencies as needed
+    }
+    stages {
+        stage('Install System Dependencies') {
+            steps {
+                script {
+                    echo "Installing required system dependencies..."
+                    sh '''
+                    sudo dpkg --configure -a
+                    sudo apt-get update
+                    sudo apt-get install -y ${DEPENDENCIES}
+                    '''
+                }
+            }
+        }
+        stage('Clone Repository') {
+            steps {
+                script {
+                    echo "Cloning the GitHub repository..."
+                    sh '''
+                    git clone ${REPO_URL}
+                    cd $(basename ${REPO_URL} .git)
+                    '''
+                }
+            }
+        }
+        stage('Install Project Dependencies') {
+            steps {
+                script {
+                    echo "Installing project-specific dependencies..."
+                    sh '''
+                    cd $(basename ${REPO_URL} .git)
+                    if [ -f "package.json" ]; then
+                        sudo apt-get install -y npm
+                        npm install
+                    fi
+                    if [ -f "requirements.txt" ]; then
+                        sudo apt-get install -y python3-pip
+                        pip3 install -r requirements.txt
+                    fi
+                    '''
+                }
+            }
+        }
+        stage('Build Project') {
+            steps {
+                script {
+                    echo "Building the project..."
+                    sh '''
+                    cd $(basename ${REPO_URL} .git)
+                    if [ -f "Makefile" ]; then
+                        make
+                    elif [ -f "build.gradle" ]; then
+                        ./gradlew build
+                    elif [ -f "pom.xml" ]; then
+                        mvn package
+                    else
+                        echo "No build file found. Skipping build step."
+                    fi
+                    '''
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                script {
+                    echo "Running tests..."
+                    sh '''
+                    cd $(basename ${REPO_URL} .git)
+                    if [ -f "Makefile" ]; then
+                        make test
+                    elif [ -f "build.gradle" ]; then
+                        ./gradlew test
+                    elif [ -f "pom.xml" ]; then
+                        mvn test
+                    else
+                        echo "No test configuration found. Skipping test step."
+                    fi
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "Pipeline executed successfully."
+        }
+        failure {
+            echo "Pipeline failed. Check the logs for details."
+        }
+        always {
+            echo "Cleaning up workspace..."
+            cleanWs()
+        }
+    }
+}
