@@ -39,9 +39,10 @@ echo "Java Installation Complete."
 java -version
 
 # Install Jenkins (Add Jenkins repository and install)
+# Setting up Jenkins repository for Ubuntu 20.04 LTS (Focal Fossa) instead of Jammy
 echo "Setting up Jenkins repository..."
 wget -q -O - https://pkg.jenkins.io/jenkins.io.key | sudo tee /etc/apt/trusted.gpg.d/jenkins.asc
-echo "deb http://pkg.jenkins.io/debian/ $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/jenkins.list
+echo "deb http://pkg.jenkins.io/debian/ focal stable" | sudo tee /etc/apt/sources.list.d/jenkins.list
 
 # Update package list again after adding Jenkins repo
 echo "Updating package list again..."
@@ -72,4 +73,3 @@ sudo systemctl status jenkins
 echo "Verifying Java and Jenkins installations..."
 java -version
 echo "Jenkins is running on port 8080"
-
